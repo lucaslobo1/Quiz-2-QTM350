@@ -1,0 +1,20 @@
+project:
+  type: website
+
+website:
+  title: "Data Analysis of Gapminder: Quiz 2"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: life_expectancy_gdp.qmd
+        text: Life Expectancy vs. GDP
+      - href: life_expectancy_population.qmd
+        text: Life Expectancy vs. Population
+      - href: country_analysis.qmd
+        text: Country Analysis
+
+format:
+  html:
+    theme: cosmo
+    toc: true

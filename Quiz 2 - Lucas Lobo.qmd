@@ -1,0 +1,132 @@
+---
+title: "Quiz 2 - Lucas Lobo"
+format: html
+website:
+  title: "Analysis of the Gapminder Dataset"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: life_expectancy_gdp.qmd
+        text: Life Expectancy vs. GDP
+      - href: life_expectancy_population.qmd
+        text: Life Expectancy vs. Population
+      - href: country_analysis.qmd
+        text: Country Analysis
+---
+
+## index.qmd
+---
+title: "Home"
+---
+
+This is the Gapminder Analysis Website. Included is analysis relating to the life expectancy, GDP per capita, and population information from various countries.
+
+The dataset has been installed, and the first four rows have been displayed.
+
+- [Life Expectancy vs. GDP](life_expectancy_gdp.qmd)
+- [Life Expectancy vs. Population](life_expectancy_population.qmd)
+- [Country Analysis](country_analysis.qmd)
+
+```{python}
+#| echo: false
+
+# Install packages
+# !pip install pandas gapminder
+
+# Import necessary libraries
+import pandas as pd
+from gapminder import gapminder
+
+# Rename 'lifeExp' to 'life_expectancy' and 'gdpPercap' to 'gdp_per_capita'
+gapminder = gapminder.rename(columns={'lifeExp': 'life_expectancy',
+                                      'pop': 'population_millions', 
+                                      'gdpPercap': 'gdp_per_capita'})
+
+# Convert population to millions
+gapminder['population_millions'] = gapminder['population_millions'] / 1_000_000
+
+# Create a new pandas DataFrame from the modified gapminder data
+gapminder_df = pd.DataFrame(gapminder)
+
+# Save the DataFrame as a CSV file
+gapminder_df.to_csv('gapminder.csv', index=False)
+
+gapminder.head(5)
+```
+
+
+## life_expectancy_gdp.qmd
+---
+title: "Life Expectancy vs. GDP"
+---
+
+Included is a scatterplot (and supporting code) showing the relationship between life expectancy and GDP per capita. For readability, I log-transformed the x-axis (given the wide variation in countries' GDP). Overall, there is a strong positive correlation between the two variables. 
+
+```{python}
+# Importing packages
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Plotting
+plt.figure(figsize=(10,6))
+sns.scatterplot(data=gapminder, x="gdp_per_capita", y="life_expectancy")
+plt.xscale("log")
+plt.title("Life Expectancy vs. GDP per Capita")
+plt.xlabel("GDP per Capita (log scale)")
+plt.ylabel("Life Expectancy")
+plt.show()
+```
+
+## life_expectancy_population.qmd
+---
+title: "Life Expectancy vs. Population"
+---
+
+Included is a scatterplot (and supporting code) showing the relationship between population and life expectancy. There seems to be a weak, positive correlation. Further analysis, included log-transforming some variables, may reveal added information, because some select countries have population sizes many standard deviations above the median.
+
+After computing this directly, we find that the correlation between life Expectancy and population (in millions) is 0.0650, which is positive but definitely weak.
+
+
+```{python}
+# Plotting
+plt.figure(figsize=(10,6))
+sns.scatterplot(data=gapminder, x="life_expectancy", y="population_millions")
+plt.title("Population (in millions) vs. Life Expectancy")
+plt.xlabel("Life Expectancy")
+plt.ylabel("Population (millions)")
+plt.show()
+
+# Correlation coefficient.
+
+coeff = gapminder[['life_expectancy', 'population_millions']].corr().iloc[0, 1]
+print(f"Correlation between Life Expectancy and Population (in millions): {coeff:.4f}")
+```
+
+## country_analysis.qmd
+---
+title: "Country Analysis"
+---
+
+Included are line plots of U.S. data analyzing Life Expectancy, GDP per Capita, and Population (in millions) over time, all plotted on the same graph. While the U.S. population has constantly increased over time,  (150M in 1950 to 300M in 2008), life epectancy has barely increased. GDP per capita has increased drastically over time, although it appears stagnant due to the scale of the plot.
+
+```{python}
+# New data
+us_data = gapminder[gapminder["country"] == "United States"]
+us_data
+
+# Plotting
+plt.figure(figsize=(10,6))
+# Life exp.
+plt.plot(us_data["year"], us_data["life_expectancy"], label="Life Expectancy")
+# GDP per Cap.
+plt.plot(us_data["year"], us_data["gdp_per_capita"] / 1000, label="GDP per Capita")
+# Pop.
+plt.plot(us_data["year"], us_data["population_millions"], label="Population (millions)")
+plt.title(f"Changes in United States Data over Time")
+plt.xlabel("Year")
+plt.ylabel("Value")
+plt.legend()
+plt.show()
+```

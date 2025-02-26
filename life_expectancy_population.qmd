@@ -1,0 +1,55 @@
+---
+title: "Life Expectancy vs. Population"
+format: html
+---
+
+# Life Expectancy and Population Page
+
+Included is a scatterplot (and supporting code) showing the relationship between population and life expectancy. There seems to be a weak, positive correlation. Further analysis, included log-transforming some variables, may reveal added information, because some select countries have population sizes many standard deviations above the median.
+
+After computing this directly, we find that the correlation between life Expectancy and population (in millions) is 0.0650, which is positive but definitely weak.
+
+```{python}
+#| echo: false
+
+# Install packages
+# !pip install pandas gapminder
+
+# Import necessary libraries
+import pandas as pd
+from gapminder import gapminder
+
+# Rename 'lifeExp' to 'life_expectancy' and 'gdpPercap' to 'gdp_per_capita'
+gapminder = gapminder.rename(columns={'lifeExp': 'life_expectancy',
+                                      'pop': 'population_millions', 
+                                      'gdpPercap': 'gdp_per_capita'})
+
+# Convert population to millions
+gapminder['population_millions'] = gapminder['population_millions'] / 1_000_000
+
+# Create a new pandas DataFrame from the modified gapminder data
+gapminder_df = pd.DataFrame(gapminder)
+
+# Save the DataFrame as a CSV file
+gapminder_df.to_csv('gapminder.csv', index=False)
+```
+
+
+```{python}
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Plotting
+plt.figure(figsize=(10,6))
+sns.scatterplot(data=gapminder, x="life_expectancy", y="population_millions")
+plt.title("Population (in millions) vs. Life Expectancy")
+plt.xlabel("Life Expectancy")
+plt.ylabel("Population (millions)")
+plt.show()
+
+# Correlation coefficient.
+
+coeff = gapminder[['life_expectancy', 'population_millions']].corr().iloc[0, 1]
+print(f"Correlation between Life Expectancy and Population (in millions): {coeff:.4f}")
+```

@@ -1,0 +1,57 @@
+---
+title: "Country Analysis"
+format: html
+---
+
+# Country Analysis Page
+
+Included are line plots of U.S. data analyzing Life Expectancy, GDP per Capita, and Population (in millions) over time, all plotted on the same graph. While the U.S. population has constantly increased over time,  (150M in 1950 to 300M in 2008), life epectancy has barely increased. GDP per capita has increased drastically over time, although it appears stagnant due to the scale of the plot.
+
+```{python}
+#| echo: false
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+#| echo: false
+
+# Install packages
+# !pip install pandas gapminder
+
+# Import necessary libraries
+import pandas as pd
+from gapminder import gapminder
+
+# Rename 'lifeExp' to 'life_expectancy' and 'gdpPercap' to 'gdp_per_capita'
+gapminder = gapminder.rename(columns={'lifeExp': 'life_expectancy',
+                                      'pop': 'population_millions', 
+                                      'gdpPercap': 'gdp_per_capita'})
+
+# Convert population to millions
+gapminder['population_millions'] = gapminder['population_millions'] / 1_000_000
+
+# Create a new pandas DataFrame from the modified gapminder data
+gapminder_df = pd.DataFrame(gapminder)
+
+# Save the DataFrame as a CSV file
+gapminder_df.to_csv('gapminder.csv', index=False)
+
+# New data
+us_data = gapminder[gapminder["country"] == "United States"]
+us_data
+
+# Plotting
+plt.figure(figsize=(10,6))
+# Life exp.
+plt.plot(us_data["year"], us_data["life_expectancy"], label="Life Expectancy")
+# GDP per Cap.
+plt.plot(us_data["year"], us_data["gdp_per_capita"] / 1000, label="GDP per Capita")
+# Pop.
+plt.plot(us_data["year"], us_data["population_millions"], label="Population (millions)")
+plt.title(f"Changes in United States Data over Time")
+plt.xlabel("Year")
+plt.ylabel("Value")
+plt.legend()
+plt.show()
+```
